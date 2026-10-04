@@ -8,6 +8,11 @@ namespace Assignment
 {
     public class Assignment : MonoBehaviour
     {
+        public int columns = 5;
+        public int rows = 5;
+
+        public GameObject[] floorTiles;
+
         public void Start()
         {
             AS01_RandomItemDrop();
@@ -26,7 +31,8 @@ namespace Assignment
             AS14_SumOfNumbersInColumn();
             AS15_MakeTheTriangle();
             AS16_MultiplicationTableOf_2_3_and_4();
-            EX_01_TicTacToeGame_TurnPlay();
+            // EX_01_TicTacToeGame_TurnPlay();
+
         }
 
         #region Assignment
@@ -35,12 +41,16 @@ namespace Assignment
         public GameObject[] as01_items;
         public void AS01_RandomItemDrop()
         {
+            if (as01_items == null || as01_items.Length == 0)
+            {
+                Debug.LogWarning("as01_items array is empty or not assigned!");
+                return;
+            }
+
             int randomIndex = UnityEngine.Random.Range(0, as01_items.Length);
-            GameObject obj = as01_items[randomIndex];
-
-            GameObject go = Instantiate(obj);
-
-            Debug.Log($"Got item: {go.name}");
+            GameObject selectedItem = as01_items[randomIndex];
+            GameObject spawnedItem = Instantiate(selectedItem);
+            Debug.Log($"Got item: {spawnedItem.name}");
         }
 
         [Header("AS02_NestedLoopForCreate2DMap")]
@@ -49,25 +59,30 @@ namespace Assignment
         public int as02_rows;
         public void AS02_NestedLoopForCreate2DMap()
         {
-            for (int y = 0; y < as02_rows; y++)
-            {
-                string line = "";
 
+            if (as02_floorTiles == null || as02_floorTiles.Length == 0)
+            {
+                Debug.LogWarning("as02_floorTiles array is empty!");
+                return;
+            }
+
+            string mapPattern = "";
+
+
+            for (int y = as02_rows - 1; y >= 0; y--)
+            {
                 for (int x = 0; x < as02_columns; x++)
                 {
                     int randomIndex = UnityEngine.Random.Range(0, as02_floorTiles.Length);
-                    GameObject obj = as02_floorTiles[randomIndex];
+                    GameObject tilePrefab = as02_floorTiles[randomIndex];
 
-                    GameObject tile = Instantiate(
-                        obj,
-                        new Vector2(x, y),
-                        transform.rotation
-                    );
+                    Instantiate(tilePrefab, new Vector2(x, y), transform.rotation);
 
-                    line += tile.name;
+                    mapPattern += randomIndex;
                 }
+                mapPattern += "\n";
 
-                Debug.Log(line);
+                Debug.Log(mapPattern);
             }
         }
 
@@ -77,53 +92,54 @@ namespace Assignment
         public int as03_rows;
         public void AS03_NestedLoopForMakingWallAround()
         {
-            int columns = as03_columns + 2;
-            int rows = as03_rows + 2;
-
-            for (int y = 0; y < rows; y++)
+            if (as03_wall == null)
             {
-                string line = "";
+                Debug.LogWarning("as03_wall is not assigned!");
+                return;
+            }
 
-                for (int x = 0; x < columns; x++)
+            string patternOutput = "";
+
+            for (int y = as03_rows - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < as03_columns; x++)
                 {
-                    if (x == 0 || x == columns - 1 ||
-                        y == 0 || y == rows - 1)
+                    if (x == 0 || x == as03_columns - 1 || y == 0 || y == as03_rows - 1)
                     {
-                        Instantiate(
-                            as03_wall,
-                            new Vector2(x - 1, y - 1),
-                            transform.rotation
-                        );
+                        Instantiate(as03_wall, new Vector2(x, y), transform.rotation);
 
-                        line += "*";
+                        patternOutput += "*";
                     }
                     else
                     {
-                        line += " ";
+                        patternOutput += " ";
                     }
                 }
-
-                Debug.Log(line);
+                patternOutput += "\n";
             }
         }
-
         [Header("AS04_AttackEnemy")]
         public int[] as04_enemyHP;
         public int as04_damage;
         public int as04_target;
         public void AS04_AttackEnemy()
         {
+
             as04_enemyHP[0] -= as04_damage;
+            if (as04_enemyHP[0] < 0) as04_enemyHP[0] = 0;
             Debug.Log($"FirstEnemy hp :{as04_enemyHP[0]}");
 
-            int lastIndex = as04_enemyHP.Length - 1;
 
-            as04_enemyHP[lastIndex] -= as04_damage;
-            Debug.Log($"LastEnemy hp :{as04_enemyHP[lastIndex]}");
+            as04_enemyHP[as04_enemyHP.Length - 1] -= as04_damage;
+            if (as04_enemyHP[as04_enemyHP.Length - 1] < 0) as04_enemyHP[as04_enemyHP.Length - 1] = 0;
+            Debug.Log($"LastEnemy hp :{as04_enemyHP[as04_enemyHP.Length - 1]}");
+
 
             as04_enemyHP[as04_target] -= as04_damage;
+            if (as04_enemyHP[as04_target] < 0) as04_enemyHP[as04_target] = 0;
             Debug.Log($"TargetEnemy {as04_target} hp :{as04_enemyHP[as04_target]}");
         }
+
 
         [Header("AS05_DynamicIterationLoop")]
         public int as05_n;
@@ -139,20 +155,19 @@ namespace Assignment
         public string[] as06_ironManSuitNames;
         public void AS06_WhileLoopAndArray()
         {
-            Debug.Log("======Log by One======");
-
+            if (as06_ironManSuitNames == null || as06_ironManSuitNames.Length == 0)
+            {
+                Debug.LogWarning("as06_ironManSuitNames is empty!");
+                return;
+            }
             int i = 0;
-
             while (i < as06_ironManSuitNames.Length)
             {
                 Debug.Log(as06_ironManSuitNames[i]);
                 i += 1;
             }
-
             Debug.Log("======Log by Two======");
-
             i = 0;
-
             while (i < as06_ironManSuitNames.Length)
             {
                 Debug.Log(as06_ironManSuitNames[i]);
@@ -166,24 +181,37 @@ namespace Assignment
         public int as07_targetIndex;
         public void AS07_HealTargetAtIndex()
         {
+
+            if (as07_heroHPs == null || as07_heroHPs.Length == 0)
+            {
+                Debug.LogWarning("as07_heroHPs is empty!");
+                return;
+            }
+
             as07_heroHPs[0] += as07_heal;
             Debug.Log($"FirstHero hp :{as07_heroHPs[0]}");
 
             int lastIndex = as07_heroHPs.Length - 1;
-
             as07_heroHPs[lastIndex] += as07_heal;
             Debug.Log($"LastHero hp :{as07_heroHPs[lastIndex]}");
 
-            as07_heroHPs[as07_targetIndex] += as07_heal;
-            Debug.Log($"TargetHero {as07_targetIndex} hp :{as07_heroHPs[as07_targetIndex]}");
+            if (as07_targetIndex >= 0 && as07_targetIndex < as07_heroHPs.Length)
+            {
+                as07_heroHPs[as07_targetIndex] += as07_heal;
+                Debug.Log($"TargetHero {as07_targetIndex} hp :{as07_heroHPs[as07_targetIndex]}");
+            }
         }
 
         [Header("AS08_RandomPickingDialogue")]
         public string[] as08_dialogues;
         public void AS08_RandomPickingDialogue()
         {
+            if (as08_dialogues == null || as08_dialogues.Length == 0)
+            {
+                Debug.LogWarning("as08_dialogues array is empty!");
+                return;
+            }
             int r = UnityEngine.Random.Range(0, as08_dialogues.Length);
-
             Debug.Log(as08_dialogues[r]);
         }
 
@@ -193,6 +221,7 @@ namespace Assignment
         {
             for (int i = 1; i <= 12; i++)
             {
+
                 Debug.Log($"{as09_n}x{i}={as09_n * i}");
             }
         }
@@ -203,13 +232,11 @@ namespace Assignment
         {
             int sum = 0;
             int i = 1;
-
             while (i <= as10_n)
             {
                 sum += i;
                 i++;
             }
-
             Debug.Log($"ผลรวมของ n จาก 1 ถึง {as10_n} คือ {sum}");
         }
 
@@ -218,16 +245,15 @@ namespace Assignment
         public GameObject as11_enemyPrefab;
         public void AS11_SpawnEnemies()
         {
+            if (as11_enemyPrefab == null || as11_enemyHPs == null || as11_enemyHPs.Length == 0)
+            {
+                Debug.LogWarning("as11_enemyPrefab or as11_enemyHPs is not assigned!");
+                return;
+            }
             for (int i = 0; i < as11_enemyHPs.Length; i++)
             {
-                Vector3 position = transform.position;
-                position.x += i + 1;
-
-                Instantiate(
-                    as11_enemyPrefab,
-                    position,
-                    transform.rotation
-                );
+                Instantiate(as11_enemyPrefab, new Vector2(i + 1, 0), transform.rotation);
+                Debug.Log($"new enemy at position x = {i + 1}");
             }
         }
 
@@ -235,16 +261,14 @@ namespace Assignment
         public float as12_countTime;
         public IEnumerator AS12_CountTime()
         {
-            while (as12_countTime > 0)
+            float timer = 0f;
+            while (timer < as12_countTime)
             {
-                Debug.Log(as12_countTime);
-
-                yield return new WaitForSeconds(1f);
-
-                as12_countTime--;
+                timer += Time.deltaTime;
+                Debug.Log($"timer : {timer:F2}");
+                yield return null;
             }
-
-            Debug.Log(as12_countTime);
+            Debug.Log($"End timer : {as12_countTime}");
         }
 
         [Header("AS13_SumOfNumbersInRow")]
@@ -258,14 +282,12 @@ namespace Assignment
         public void AS13_SumOfNumbersInRow()
         {
             var matrix = as13_matrix.Get2DArray();
-
+            int cols = matrix.GetLength(1);
             int sum = 0;
-
-            for (int i = 0; i < matrix.GetLength(1); i++)
+            for (int col = 0; col < cols; col++)
             {
-                sum += matrix[as13_row, i];
+                sum += matrix[as13_row, col];
             }
-
             Debug.Log(sum);
         }
 
@@ -280,14 +302,12 @@ namespace Assignment
         public void AS14_SumOfNumbersInColumn()
         {
             var matrix = as14_matrix.Get2DArray();
-
+            int rows = matrix.GetLength(0);
             int sum = 0;
-
-            for (int i = 0; i < matrix.GetLength(0); i++)
+            for (int row = 0; row < rows; row++)
             {
-                sum += matrix[i, as14_column];
+                sum += matrix[row, as14_column];
             }
-
             Debug.Log(sum);
         }
 
@@ -295,16 +315,15 @@ namespace Assignment
         public int as15_size;
         public void AS15_MakeTheTriangle()
         {
+
             for (int i = 1; i <= as15_size; i++)
             {
-                string line = "";
-
-                for (int j = 0; j < i; j++)
+                string rowStars = "";
+                for (int j = 1; j <= i; j++)
                 {
-                    line += "*";
+                    rowStars += "*";
                 }
-
-                Debug.Log(line);
+                Debug.Log(rowStars);
             }
         }
 
@@ -312,19 +331,18 @@ namespace Assignment
         {
             for (int i = 1; i <= 12; i++)
             {
-                string line = "";
+                string rowText = "";
 
                 for (int j = 2; j <= 4; j++)
                 {
-                    line += $"{j} x {i} = {j * i}";
+                    rowText += $"{j} x {i} = {j * i}";
 
                     if (j < 4)
                     {
-                        line += "\t";
+                        rowText += "\t";
                     }
                 }
-
-                Debug.Log(line);
+                Debug.Log(rowText);
             }
         }
 
@@ -332,6 +350,205 @@ namespace Assignment
 
         #region Extra assignment
 
+        /*
+         * จงเขียนโปรแกรมจำลองเกม TicTacToe (XO)
+         * กำหนดให้มีตัวแปร board : ขนาด 3x3 เท่านั้น
+         * public static string[,] board = new string[3, 3] {
+         * {"", "", ""},
+         * {"", "", ""},
+         * {"", "", ""}
+         * };
+         *
+         * โดย AS11_TicTacToeGame_TurnPlay จะรับ 3 ตัวแปรคือ
+         * + player: ระบุว่าในตานี้เป็นของผู้เล่นฝ่ายไหน "X" หรือ "O" X
+         * + row, column เป็นการระบุตำแหน่งที่ผู้เล่นตานี้เลือกจะลงใน board เช่น row=0, column=1
+         * โดยที่ method นี้จะต้องพิมพ์ ตารางหลังจากใส่ค่าออกมา
+         * และแสดงว่าผลลัพธ์การเล่นตานั้นเกิดอะไรขึ้น ซึ่งจะมีความเป็นไปได้ทั้งหมด 5 รูปแบบคือ
+         * -> ">> X Win!" เมื่อ player "X" ลงตานี้แล้วขนะ
+         * -> ">> O Win!" เมื่อ player "O" ลงตานี้แล้วขนะ
+         * -> ">> Draw" เมื่อผู้เล่น X หรือ O ลงไปแล้วไม่มีผู้ชนะ
+         * -> ">> Continue" เมื่อผู้เล่น X หรือ O ลงไปแล้วเกมยังไม่จบ - ไม่มีผู้ชนะ และยังเหลือช่องว่างให้ผู้เล่นอีกคนลงต่อได้
+         * -> ">> Invalid move" เมื่อผู้เล่น X หรือ O เลือกลงไปในช่องที่ไม่ว่าง หรือไม่มีอยู่จริงเข่น row=1000 column=1999
+         *
+         * Input
+         * board:
+         * -------------
+         * |   | X |   |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * player: "X"
+         * row: 0
+         * column: 1
+         *
+         * Output
+         * -------------
+         * |   | X |   |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * >> Continue
+         *
+         * Input
+         * board:
+         * -------------
+         * |   | X |   |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * Player: "O"
+         * row: 1
+         * col: 1
+         *
+         * Output:
+         * -------------
+         * |   | X |   |
+         * -------------
+         * |   | O |   |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * >> Continue
+         *
+         * NOTE การพิมพ์ตารางให้ระวังเรื่อง space ให้ดี
+         *
+         * โดยหากช่องนั้นไม่ว่างให้ (Invalid input) ให้พิมพ์ออกมาว่าไม่สามารถลงในตำแหน่งที่ต้องการได้ cannot set X at 0 2 และวนกลับไปให้เซตค่าใหม่
+         *
+         * Input
+         * board:
+         * -------------
+         * | X |   | O |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * Player: O
+         * row: 0
+         * column: 2
+         *
+         * Output
+         * -------------
+         * | X |   | O |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * |   |   |   |
+         * -------------
+         * >> Invalid move
+         *
+         * หลังจากการลงในแต่ละตา ระบบเกมจะต้อง check ว่า ใครเป็นฝ่ายชนะ เช่น
+         *
+         * Input
+         * board:
+         * -------------
+         * | X | X |   |
+         * -------------
+         * | X | O |   |
+         * -------------
+         * | O |   |   |
+         * -------------
+         * player: O
+         * row: 2
+         * column: 0
+         *
+         * Output
+         * -------------
+         * | X | X | O |
+         * -------------
+         * | X | O |   |
+         * -------------
+         * | O |   |   |
+         * -------------
+         * >> O wins!
+         *
+         * Input
+         * board:
+         * -------------
+         * | X |   | O |
+         * -------------
+         * |   |   | O |
+         * -------------
+         * |   |   | X |
+         * -------------
+         * Player: X
+         * row: 2
+         * column: 2
+         *
+         * Output
+         * -------------
+         * | X |   | O |
+         * -------------
+         * |   | X | O |
+         * -------------
+         * |   |   | X |
+         * -------------
+         * >> X wins!
+         *
+         * และถ้าลงจนครบทุกช่องแล้วไม่มีผู้ชนะ ให้พิมพ์ว่า Draw!
+         *
+         * Input
+         * board:
+         * -------------
+         * | X | X | O |
+         * -------------
+         * | O | O | X |
+         * -------------
+         * | X |   | X |
+         * -------------
+         * Player: O
+         * row: 2
+         * column: 1
+         *
+         * Output
+         * -------------
+         * | X | X | O |
+         * -------------
+         * | O | O | X |
+         * -------------
+         * | X | O | X |
+         * -------------
+         * >> Draw
+         *
+         * Input
+         * board:
+         * -------------
+         * | X | X | O |
+         * -------------
+         * | O | O | X |
+         * -------------
+         * | X | O |   |
+         * -------------
+         * Player: X
+         * row: 2
+         * column: 2
+         *
+         * Output
+         * -------------
+         * | X | X | O |
+         * -------------
+         * | O | O | X |
+         * -------------
+         * | X | O | X |
+         * -------------
+         * >> Draw
+         *
+         * หมายเหตุ: Unity ไม่รองรับการแสดงผล string[,] บน Inspector โดยตรง จึงใช้ class Grid2DString
+         * แทน ซึ่งกรอกค่าเป็นตาราง (grid) ได้จาก Inspector เมื่อจะใช้งานเป็น 2D array จริงๆ ให้เรียก
+         * ex01_board.Get2DArray()
+         *
+         * พารามิเตอร์:
+         * - board: กระดาน Tic Tac Toe ขนาด 3x3
+         * - playerTurn: ตาของผู้เล่น "X" หรือ "O"
+         * - row: แถวที่ต้องการเล่น (index 0 - 2)
+         * - column: คอลัมน์ที่ต้องการเล่น (index 0 - 2)
+         */
         [Header("EX_01_TicTacToeGame_TurnPlay")]
         public Grid2DString ex01_board = new Grid2DString
         {
@@ -343,110 +560,14 @@ namespace Assignment
                 "", "", ""
             }
         };
-
-        public string ex01_playerTurn = "O";
+        public string ex01_playerTurn = "O";//กรอกเป็น X พิมพ์ใหญ่หรือ O พิมพ์ใหญ่เท่านั้น
         public int ex01_row = 2;
         public int ex01_column = 0;
-
         public void EX_01_TicTacToeGame_TurnPlay()
         {
             var board = ex01_board.Get2DArray();
-
-            if (ex01_playerTurn != "X" &&
-                ex01_playerTurn != "O")
-            {
-                PrintBoard(board);
-                Debug.Log(">> Invalid move");
-                return;
-            }
-
-            if (ex01_row < 0 || ex01_row > 2 ||
-                ex01_column < 0 || ex01_column > 2)
-            {
-                PrintBoard(board);
-                Debug.Log(">> Invalid move");
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(board[ex01_row, ex01_column]))
-            {
-                PrintBoard(board);
-                Debug.Log(">> Invalid move");
-                return;
-            }
-
-            board[ex01_row, ex01_column] = ex01_playerTurn;
-
-            PrintBoard(board);
-
-            bool win =
-                (board[0, 0] == ex01_playerTurn &&
-                 board[0, 1] == ex01_playerTurn &&
-                 board[0, 2] == ex01_playerTurn)
-
-                ||
-
-                (board[1, 0] == ex01_playerTurn &&
-                 board[1, 1] == ex01_playerTurn &&
-                 board[1, 2] == ex01_playerTurn)
-
-                ||
-
-                (board[2, 0] == ex01_playerTurn &&
-                 board[2, 1] == ex01_playerTurn &&
-                 board[2, 2] == ex01_playerTurn)
-
-                ||
-
-                (board[0, 0] == ex01_playerTurn &&
-                 board[1, 0] == ex01_playerTurn &&
-                 board[2, 0] == ex01_playerTurn)
-
-                ||
-
-                (board[0, 1] == ex01_playerTurn &&
-                 board[1, 1] == ex01_playerTurn &&
-                 board[2, 1] == ex01_playerTurn)
-
-                ||
-
-                (board[0, 2] == ex01_playerTurn &&
-                 board[1, 2] == ex01_playerTurn &&
-                 board[2, 2] == ex01_playerTurn)
-
-                ||
-
-                (board[0, 0] == ex01_playerTurn &&
-                 board[1, 1] == ex01_playerTurn &&
-                 board[2, 2] == ex01_playerTurn)
-
-                ||
-
-                (board[0, 2] == ex01_playerTurn &&
-                 board[1, 1] == ex01_playerTurn &&
-                 board[2, 0] == ex01_playerTurn);
-
-            if (win)
-            {
-                Debug.Log($">> {ex01_playerTurn} Win!");
-                return;
-            }
-
-            for (int row = 0; row < 3; row++)
-            {
-                for (int column = 0; column < 3; column++)
-                {
-                    if (string.IsNullOrEmpty(board[row, column]))
-                    {
-                        Debug.Log(">> Continue");
-                        return;
-                    }
-                }
-            }
-
-            Debug.Log(">> Draw");
+            throw new NotImplementedException();
         }
-
         #endregion
 
         private void PrintBoard(string[,] board)
@@ -465,5 +586,7 @@ namespace Assignment
         {
             return string.IsNullOrEmpty(value) ? " " : value;
         }
+
     }
+
 }
